@@ -1,0 +1,59 @@
+#
+# Copyright 2014-2015 Ettus Research LLC
+# Copyright 2018 Ettus Research, a National Instruments Company
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+cmake_minimum_required(VERSION 3.5.1)
+project(cli)
+find_package(UHD 4.1.0 REQUIRED)
+
+### Configure Compiler ########################################################
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    set(CMAKE_EXE_LINKER_FLAGS "-lthr ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+endif()
+
+set(UHD_BOOST_REQUIRED_COMPONENTS
+    program_options
+    system
+    thread
+)
+set(BOOST_MIN_VERSION 1.65)
+include(UHDBoost)
+
+# need these include and link directories for the build
+include_directories(
+    ${Boost_INCLUDE_DIRS}
+    ${UHD_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+link_directories(${Boost_LIBRARY_DIRS})
+
+file(GLOB CPPS "*.cpp")
+file(GLOB HDRS "*.h")
+add_executable(${PROJECT_NAME} ${CPPS} ${HDRS})
+
+# Shared library case: All we need to do is link against the library, and
+# anything else we need (in this case, some Boost libraries):
+if(NOT UHD_USE_STATIC_LIBS)
+    message(STATUS "Linking against shared UHD library.")
+    target_link_libraries(cli ${UHD_LIBRARIES} ${Boost_LIBRARIES})
+# Shared library case: All we need to do is link against the library, and
+# anything else we need (in this case, some Boost libraries):
+else(NOT UHD_USE_STATIC_LIBS)
+    message(STATUS "Linking against static UHD library.")
+    target_link_libraries(cli
+        # We could use ${UHD_LIBRARIES}, but linking requires some extra flags,
+        # so we use this convenience variable provided to us
+        ${UHD_STATIC_LIB_LINK_FLAG}
+        # Also, when linking statically, we need to pull in all the deps for
+        # UHD as well, because the dependencies don't get resolved automatically
+        ${UHD_STATIC_LIB_DEPS}
+    )
+endif(NOT UHD_USE_STATIC_LIBS)

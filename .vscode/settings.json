@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "/share/u220_regs_cli/src",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/share/toolchain.cmake"
+    },
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json"
+}
