@@ -8,6 +8,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(cli)
 find_package(UHD 4.1.0 REQUIRED)
+find_library(READLINE_LIBRARY NAMES readline REQUIRED)
 
 ### Configure Compiler ########################################################
 set(CMAKE_CXX_STANDARD 17)
@@ -36,23 +37,18 @@ file(GLOB CPPS "*.cpp")
 file(GLOB HDRS "*.h")
 add_executable(${PROJECT_NAME} ${CPPS} ${HDRS})
 
-# Shared library case: All we need to do is link against the library, and
-# anything else we need (in this case, some Boost libraries):
 if(NOT UHD_USE_STATIC_LIBS)
-    message(STATUS "Linking against shared UHD library.")
-    target_link_libraries(cli ${UHD_LIBRARIES} ${Boost_LIBRARIES})
-# Shared library case: All we need to do is link against the library, and
-# anything else we need (in this case, some Boost libraries):
-else(NOT UHD_USE_STATIC_LIBS)
-    message(STATUS "Linking against static UHD library.")
     target_link_libraries(cli
-        # We could use ${UHD_LIBRARIES}, but linking requires some extra flags,
-        # so we use this convenience variable provided to us
-        ${UHD_STATIC_LIB_LINK_FLAG}
-        # Also, when linking statically, we need to pull in all the deps for
-        # UHD as well, because the dependencies don't get resolved automatically
-        ${UHD_STATIC_LIB_DEPS}
+        ${UHD_LIBRARIES}
+        ${Boost_LIBRARIES}
+        ${READLINE_LIBRARY}
     )
-endif(NOT UHD_USE_STATIC_LIBS)
+else()
+    target_link_libraries(cli
+        ${UHD_STATIC_LIB_LINK_FLAG}
+        ${UHD_STATIC_LIB_DEPS}
+        ${READLINE_LIBRARY}
+    )
+endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
