@@ -1,0 +1,49 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CLI: Configure",
+            "type": "process",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}/src",
+                "-B",
+                "${workspaceFolder}/build",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DCMAKE_TOOLCHAIN_FILE=/share/toolchain.cmake",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "CLI: Build",
+            "type": "process",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--target",
+                "install",
+                "-j3"
+            ],
+            "dependsOn": "CLI: Configure",
+            "dependsOrder": "sequence",
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "CLI: Copy to board",
+            "type": "process",
+            "command": "scp",
+            "args": [
+                "${workspaceFolder}/bin/cli",
+                "mini:~/u220/test_regs/bin"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
