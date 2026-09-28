@@ -191,7 +191,7 @@ int UHD_SAFE_MAIN(int argc, char * argv[]) {
 	// Initialize commands
 	init_commands();
 	std::cout << "Creating the USRP device..." << std::endl;
-	std::string usrp_args = "";
+	std::string usrp_args = "type = b200, enable_user_regs ";
 	usrp                  = uhd::usrp::multi_usrp::make(usrp_args);
 
 	std::cout << "Using Device: " << usrp->get_pp_string() << std::endl;

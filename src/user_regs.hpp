@@ -17,5 +17,6 @@ void set_sr_core_play(uhd::usrp::multi_usrp::sptr usrp, uint32_t enable, uint32_
 	} play_ctrl_un = {
 		.play_ctrl{.enable = enable, .trigger_src = trigger_src}
     };
-	usrp->set_user_register(SR_CORE_PLAY_CTRL_ADDR, play_ctrl_un.raw);
+	auto user_regs = usrp->get_user_settings_iface();
+	user_regs->poke32(SR_CORE_PLAY_CTRL_ADDR, play_ctrl_un.raw);
 }
